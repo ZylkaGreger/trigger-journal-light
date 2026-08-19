@@ -18,9 +18,48 @@ look at which patterns came up.
 - **Inviting questions instead of answers.** The tone ends on an open question.
 - **Maximally private.** Local-first. Nothing gets uploaded.
 
+## How to use it — quick start
+
+You don't need to install anything or know how to code.
+
+**1. Get the tool** (once)
+- On the GitHub page, click the green **Code** button → **Download ZIP**,
+  and unpack it anywhere on your computer.
+- (If you're comfortable with git: `git clone` works too, of course.)
+
+**2. Open the journal**
+- In the unpacked folder, double-click **`app/index.html`**.
+  It opens in your browser and works offline from then on.
+
+**3. When something triggers you, write it down** (takes a minute)
+- Note the **situation** (just the facts) and the **story** you're telling
+  yourself about it. That's all that's required.
+- If you like, add where you feel it in the **body**, the **emotion**, and
+  which **identity/role** got touched ("I'm only ever the…").
+- If a gentle question appears — *"Are you sure it's out there?"* — you can
+  answer it in "The turn", or ignore it. It's an invitation, not homework.
+- Press **"Set it down · let it out"**. Done. Nothing else to do.
+
+**4. Once a week, look at the patterns** (takes five minutes)
+- Press **"Copy this week · for Claude"** in the app.
+- Paste it into [Claude](https://claude.ai) (free account is fine).
+- You'll get a short, gentle reflection: what came up, one suspected
+  pattern, one open question to sit with. No advice, no to-do list.
+
+**5. Back up now and then**
+- Your entries live only in this browser. Press **"Export everything
+  (.json)"** occasionally and keep the file somewhere safe. The app will
+  gently remind you when it's time.
+- The same file is how you *deliberately* share your list with someone, or
+  move it to another device (**Import**).
+
+That's the whole practice: write it down when it happens, look once a week,
+let the question sit.
+
 ## Two ways in — same data
 
-Choose freely, depending on the moment. Both write the same format.
+The quick start above uses the app. There is a second way in for people who
+use Claude Code — both write the same format, so you can mix freely.
 
 ### 1. The app (just fill it in, works on your phone)
 
