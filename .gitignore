@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────────────────────
+# PRIVACY WALL — very important.
+# You share the TOOL, never your entries.
+# Your intimate data NEVER lands on GitHub.
+# ─────────────────────────────────────────────────────────────
+
+# Ignore all real entries ...
+entries/*
+
+# ... but keep the folder itself so the repo stays understandable.
+!entries/.gitkeep
+
+# Weekly reflections — just as private as the entries, NEVER share
+reflections/
+
+# Local exports / backups
+exports/
+*.backup.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

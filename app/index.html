@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Trigger Journal</title>
+<style>
+  :root{
+    --bg:#f4f1ea;          /* warm off-white */
+    --card:#fbf9f4;
+    --ink:#2e2a26;         /* soft dark brown */
+    --muted:#8a8178;
+    --line:#e4ded3;
+    --accent:#6b7f6e;      /* muted sage green */
+    --accent-soft:#e8ede7;
+    --field:#fffdf8;
+    --shadow:0 1px 2px rgba(60,50,40,.05), 0 8px 24px rgba(60,50,40,.05);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1c1a18; --card:#252220; --ink:#ece6dd; --muted:#9a9087;
+      --line:#332f2b; --accent:#8aa48c; --accent-soft:#2a302a; --field:#201e1c;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:620px;margin:0 auto;padding:28px 18px 80px}
+  header{text-align:center;margin:14px 0 26px}
+  header .kicker{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  header h1{font-size:26px;margin:6px 0 10px;font-weight:600;letter-spacing:-.01em}
+  header .credo{color:var(--muted);font-style:italic;max-width:42ch;margin:0 auto;font-size:15px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+
+  label{display:block;font-size:14px;font-weight:600;margin:16px 0 6px}
+  label:first-child{margin-top:0}
+  label .opt{font-weight:400;color:var(--muted);font-size:13px}
+  .hint{color:var(--muted);font-size:13px;margin:-2px 0 8px}
+
+  input[type=text], textarea, select{
+    width:100%;background:var(--field);color:var(--ink);
+    border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    font:inherit;resize:vertical;
+  }
+  textarea{min-height:64px}
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+  .toggle{display:flex;align-items:center;gap:10px;margin-top:16px;cursor:pointer;user-select:none}
+  .toggle input{appearance:none;width:42px;height:25px;background:var(--line);border-radius:999px;position:relative;transition:.2s;flex:none;cursor:pointer}
+  .toggle input:checked{background:var(--accent)}
+  .toggle input::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;background:#fff;border-radius:50%;transition:.2s}
+  .toggle input:checked::after{transform:translateX(17px)}
+  .toggle span{font-size:14px}
+
+  /* the gentle invitation */
+  .invite{margin-top:16px;background:var(--accent-soft);border-radius:12px;padding:13px 15px;
+          font-style:italic;color:var(--ink);display:none;border:1px solid var(--line)}
+  .invite.show{display:block}
+  .invite small{display:block;font-style:normal;color:var(--muted);margin-top:4px;font-size:12.5px}
+
+  .btn{appearance:none;border:1px solid var(--line);background:var(--field);color:var(--ink);
+       border-radius:12px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;width:100%;margin-top:20px;padding:13px}
+  .btn.ghost{font-weight:500;color:var(--muted)}
+  .btn.small{padding:7px 11px;font-size:13px}
+
+  .confirm{text-align:center;color:var(--muted);font-style:italic;margin-top:14px;min-height:1.2em;font-size:14.5px}
+
+  .entries h2{font-size:15px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:34px 4px 12px;font-weight:600}
+  .entry{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .entry .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .pill{background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:2px 10px;font-size:12px}
+  .entry .outside{margin:8px 0 0;font-weight:500}
+  .entry .body{display:none;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+  .entry.open .body{display:block}
+  .entry .field{margin:8px 0}
+  .entry .field .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .tag{background:var(--accent-soft);border-radius:999px;padding:2px 9px;font-size:12.5px}
+  .entry .actions{margin-top:12px;display:flex;gap:8px}
+
+  .tools{margin-top:30px;border-top:1px solid var(--line);padding-top:18px}
+  .tools .row{justify-content:center;gap:8px}
+  .privacy{text-align:center;color:var(--muted);font-size:12.5px;margin-top:16px;line-height:1.5}
+  .empty{text-align:center;color:var(--muted);font-style:italic;padding:18px 0}
+
+  /* gentle backup nudge — not an alarm */
+  .nudge{display:none;background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);
+         padding:14px 16px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .nudge.show{display:block}
+  .nudge p{margin:0 0 10px;font-size:14px}
+  .nudge .row{gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Nothing to fix</div>
+    <h1>Trigger Journal</h1>
+    <p class="credo">What bothers me out there has almost nothing to do with what's out there — and almost everything to do with something in me.</p>
+  </header>
+
+  <!-- gentle backup nudge -->
+  <div class="nudge" id="nudge">
+    <p id="nudgeText"></p>
+    <div class="row">
+      <button type="button" class="btn small" id="nudgeSave">Back up now</button>
+      <button type="button" class="btn small ghost" id="nudgeLater">Later</button>
+    </div>
+  </div>
+
+  <!-- Capture -->
+  <form class="card" id="form" autocomplete="off">
+    <label for="context">Where?</label>
+    <select id="context">
+      <option value="work">Work</option>
+      <option value="relationship">Relationship</option>
+      <option value="family">Family</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label for="trigger_outside">Trigger · the situation <span class="opt">(the "outside")</span></label>
+    <div class="hint">What actually happened? Facts, no judgment.</div>
+    <textarea id="trigger_outside"></textarea>
+
+    <label for="story">The story</label>
+    <div class="hint">What did you tell yourself? Who or what are you blaming?</div>
+    <textarea id="story"></textarea>
+
+    <label for="body">Body <span class="opt">(optional)</span></label>
+    <div class="hint">Where in the body? What sensation comes up?</div>
+    <input type="text" id="body">
+
+    <label for="emotion">Emotion <span class="opt">(optional)</span></label>
+    <input type="text" id="emotion" placeholder="What feeling?">
+
+    <label for="identity">Identity · role that got touched <span class="opt">(optional)</span></label>
+    <div class="hint">e.g. "I'm only ever the helper", "the little grumbler" — separate with commas.</div>
+    <input type="text" id="identity">
+
+    <label class="toggle">
+      <input type="checkbox" id="meta_trigger">
+      <span>Right now I'm more upset about my own upset than about the thing itself. <span style="color:var(--muted)">(the mental movie)</span></span>
+    </label>
+
+    <!-- a gentle invitation, never a demand -->
+    <div class="invite" id="invite">
+      Are you sure it's out there?
+      <small>An invitation, not a correction. You don't have to answer it.</small>
+    </div>
+
+    <label for="reflection_inside">The turn <span class="opt">(optional)</span></label>
+    <div class="hint">Where is this in me?</div>
+    <textarea id="reflection_inside"></textarea>
+
+    <button type="submit" class="btn primary">Set it down · let it out</button>
+    <div class="confirm" id="confirm"></div>
+  </form>
+
+  <!-- List -->
+  <div class="entries">
+    <h2>What came up</h2>
+    <div id="list"></div>
+  </div>
+
+  <!-- Tools -->
+  <div class="tools">
+    <div class="row">
+      <button class="btn small ghost" id="exportWeek">Copy this week · for Claude</button>
+      <button class="btn small ghost" id="exportAll">Export everything (.json)</button>
+      <button class="btn small ghost" id="importBtn">Import</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+    <p class="privacy">
+      Everything stays on this device, in this browser's storage.<br>
+      Nothing is uploaded. "Giving someone my list" = a deliberate export.
+    </p>
+  </div>
+</div>
+
+<script>
+const KEY = "trigger-journal-entries-v1";
+const $ = s => document.querySelector(s);
+
+const BKEY = "trigger-journal-last-backup-v1";   // ISO date of the last backup
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+const save = list => localStorage.setItem(KEY, JSON.stringify(list));
+let entries = load();
+let nudgeSnoozed = false;   // "Later" lasts only until the next page load
+
+const esc = s => String(s ?? "").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const ctxLabel = c => ({work:"Work",relationship:"Relationship",family:"Family",other:"Other"}[c]||c);
+const fmtDate = ts => { const d = new Date(ts);
+  return d.toLocaleDateString(undefined,{weekday:"short",day:"2-digit",month:"2-digit"})
+       + " · " + d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}); };
+
+/* show the gentle invitation when there is a lot of outside and no inside yet */
+function updateInvite(){
+  const outside = $("#trigger_outside").value.trim() + " " + $("#story").value.trim();
+  const inside  = $("#reflection_inside").value.trim();
+  $("#invite").classList.toggle("show", outside.length > 12 && inside.length === 0);
+}
+["#trigger_outside","#story","#reflection_inside"].forEach(s => $(s).addEventListener("input", updateInvite));
+
+/* gentle backup nudge — only appears when there really is something unsaved */
+function markBackup(){ localStorage.setItem(BKEY, new Date().toISOString()); }
+function updateNudge(){
+  const el = $("#nudge");
+  if (nudgeSnoozed){ el.classList.remove("show"); return; }
+  const last = localStorage.getItem(BKEY);
+  const lastTime = last ? new Date(last).getTime() : 0;
+  const newer = entries.filter(en => new Date(en.timestamp).getTime() > lastTime);
+  const days = last ? (Date.now() - lastTime) / 86400000 : Infinity;
+  // only from ~3 new entries, or 1+ new entries if the last backup is >7 days old
+  const show = newer.length >= 3 || (last && days >= 7 && newer.length >= 1);
+  $("#nudgeText").textContent = last
+    ? `A gentle note: ${newer.length} ${newer.length===1?"entry":"entries"} since your last backup. Would you like to export them? Otherwise they'd be lost if the browser storage gets cleared.`
+    : `A gentle note: your entries aren't backed up yet. Would you like to export them? They only live in this browser — clearing browser data would erase them.`;
+  el.classList.toggle("show", show);
+}
+$("#nudgeLater").addEventListener("click", () => { nudgeSnoozed = true; updateNudge(); });
+$("#nudgeSave").addEventListener("click", () => exportAll());
+
+/* save */
+$("#form").addEventListener("submit", e => {
+  e.preventDefault();
+  const now = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  const id = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const ids = $("#identity").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const entry = {
+    id,
+    timestamp: now.toISOString(),
+    context: $("#context").value,
+    trigger_outside: $("#trigger_outside").value.trim(),
+    story: $("#story").value.trim(),
+    body: $("#body").value.trim(),
+    emotion: $("#emotion").value.trim(),
+    identity: ids,
+    reflection_inside: $("#reflection_inside").value.trim(),
+    meta_trigger: $("#meta_trigger").checked
+  };
+  if (!entry.trigger_outside && !entry.story){
+    $("#confirm").textContent = "Start by writing what came up — even a single sentence is enough.";
+    return;
+  }
+  entries.unshift(entry); save(entries); render(); updateNudge();
+  e.target.reset(); updateInvite();
+  // deliberately NO score, NO praise — just one open question to sit with.
+  $("#confirm").textContent = "Set down. You don't have to do anything with it — where in you was it felt, again?";
+  setTimeout(()=>{ $("#confirm").textContent=""; }, 9000);
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+/* render list */
+function render(){
+  const list = $("#list");
+  if (!entries.length){ list.innerHTML = `<div class="empty">Nothing set down yet. That's completely fine.</div>`; return; }
+  list.innerHTML = entries.map(en => {
+    const tags = (en.identity||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join("");
+    const field = (k,v) => v ? `<div class="field"><div class="k">${k}</div><div>${esc(v)}</div></div>` : "";
+    return `<div class="entry" data-id="${en.id}">
+      <div class="meta">
+        <span>${fmtDate(en.timestamp)}</span>
+        <span class="pill">${ctxLabel(en.context)}</span>
+      </div>
+      <p class="outside">${esc(en.trigger_outside) || "<em style='color:var(--muted)'>(no situation)</em>"}</p>
+      <div class="body">
+        ${field("Story", en.story)}
+        ${field("Body", en.body)}
+        ${field("Emotion", en.emotion)}
+        ${tags ? `<div class="field"><div class="k">Identity · role</div><div class="tags">${tags}</div></div>` : ""}
+        ${en.meta_trigger ? `<div class="field"><div class="k">Meta-trigger</div><div>Upset about the upset.</div></div>` : ""}
+        ${field("Where is this in me?", en.reflection_inside)}
+        <div class="actions">
+          <button class="btn small ghost" data-del="${en.id}">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* expand / delete */
+$("#list").addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  if (del){
+    if (confirm("Delete this entry?")){
+      entries = entries.filter(x => x.id !== del.dataset.del); save(entries); render(); updateNudge();
+    }
+    return;
+  }
+  const card = e.target.closest(".entry");
+  if (card) card.classList.toggle("open");
+});
+
+/* export: everything as json */
+function download(name, text, type){
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement("a"), {href:url, download:name});
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function exportAll(){
+  if (!entries.length){ alert("Nothing to export yet."); return; }
+  download(`trigger-journal-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(entries,null,2), "application/json");
+  markBackup(); nudgeSnoozed = false; updateNudge();
+}
+$("#exportAll").addEventListener("click", exportAll);
+
+/* export: the week as text — ready to paste into claude */
+$("#exportWeek").addEventListener("click", async () => {
+  const since = Date.now() - 7*24*60*60*1000;
+  const week = entries.filter(en => new Date(en.timestamp).getTime() >= since);
+  if (!week.length){ alert("Nothing here for this week yet. Completely fine."); return; }
+  const preamble =
+`These are my trigger journal entries from the last 7 days.
+
+Please turn them into a gentle weekly reflection — no solution, no advice, no judgment, no streaks/scores. There is nothing to fix. Careful, tentative language.
+
+Give me:
+1. What came up this week (2–4 sentences, mirroring).
+2. One suspected pattern (a single hypothesis, e.g. a recurring identity or a shared root trigger underneath).
+3. One single open question to sit with, in the spirit of "Are you sure it's out there?".
+
+Here are the entries:
+
+`;
+  const body = week.map((en,i) => {
+    const L = [];
+    L.push(`— Entry ${i+1} (${fmtDate(en.timestamp)}, ${ctxLabel(en.context)}) —`);
+    if (en.trigger_outside) L.push(`Trigger: ${en.trigger_outside}`);
+    if (en.story)           L.push(`Story: ${en.story}`);
+    if (en.body)            L.push(`Body: ${en.body}`);
+    if (en.emotion)         L.push(`Emotion: ${en.emotion}`);
+    if (en.identity?.length) L.push(`Identity: ${en.identity.join(", ")}`);
+    if (en.meta_trigger)    L.push(`Meta-trigger: yes`);
+    if (en.reflection_inside) L.push(`Where is this in me?: ${en.reflection_inside}`);
+    return L.join("\n");
+  }).join("\n\n");
+  const text = preamble + body;
+  try { await navigator.clipboard.writeText(text);
+    const b = $("#exportWeek"); const old = b.textContent;
+    b.textContent = "Copied — paste into Claude ✓";
+    setTimeout(()=>b.textContent=old, 2500);
+  } catch { download("week.txt", text, "text/plain"); }
+});
+
+/* import */
+$("#importBtn").addEventListener("click", () => $("#importFile").click());
+$("#importFile").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      const incoming = Array.isArray(data) ? data : [data];
+      const byId = new Map(entries.map(x => [x.id, x]));
+      incoming.forEach(x => { if (x && x.id) byId.set(x.id, x); });
+      entries = [...byId.values()].sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+      save(entries); render(); updateNudge();
+      alert(`Imported ${incoming.length} entr${incoming.length===1?"y":"ies"}.`);
+    } catch { alert("Couldn't read the file — is it an export from this journal?"); }
+  };
+  r.readAsText(file); e.target.value = "";
+});
+
+render(); updateInvite(); updateNudge();
+</script>
+</body>
+</html>
